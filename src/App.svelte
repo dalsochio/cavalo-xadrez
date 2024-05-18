@@ -1,12 +1,10 @@
 <script>
   import cavaloSvg from "./assets/cavalinho.svg";
-  import { compareArrays } from "./lib/util";
   let tamanho = 8;
   let tabuleiro = [];
-  let cavalo = [];
 
   // Movimentos possíveis de um cavalo no tabuleiro
-  const movimentosCavalo = [
+  let movimentosCavalo = [
     [-2, -1],
     [-1, -2],
     [1, -2],
@@ -17,87 +15,142 @@
     [-2, 1],
   ];
 
+  let caminho = [];
+  let loop = true;
+
   function gerarTabuleiro(tamanho) {
     for (let y = 0; y < tamanho; y++) {
       if (tabuleiro[y] === undefined) {
         tabuleiro[y] = [];
-        cavalo[y] = [];
       }
       for (let x = 0; x < tamanho; x++) {
-        tabuleiro[y][x] = [y, x];
-        cavalo[y][x] = null;
+        tabuleiro[y][x] = true;
       }
     }
-
-    cavalo[0][0] = 0;
-
-    console.table(cavalo);
   }
 
   function limparTabuleiro() {
     tabuleiro = [];
+    caminho = [];
+    clearInterval(loop);
+    console.clear();
+    console.log("Tabuleiro limpo");
   }
 
   // Função para verificar se uma posição está dentro dos limites do tabuleiro
   function posicaoValida(linha, coluna) {
-    return linha >= 0 && linha < 8 && coluna >= 0 && coluna < 8;
+    return linha >= 0 && linha < tamanho && coluna >= 0 && coluna < tamanho;
   }
 
-  // Função para realizar a busca em largura para o caminho do cavalo
-  function caminhosCavalo(posicaoInicial, posicaoFinal) {
-    const fila = [[posicaoInicial]]; // Fila com o caminho inicial
-    const visitados = new Set(); // Conjunto para manter registro das posições visitadas
+  function findMaxIndex(arr) {
+    if (arr.length === 0) {
+      return -1; // Retorna -1 para array vazia
+    }
 
-    while (fila.length > 0) {
-      const caminho = fila.shift(); // Remover o próximo caminho da fila
-      const posicaoAtual = caminho[caminho.length - 1]; // Obter a posição atual
-
-      // Verificar se a posição atual é o destino
-      if (
-        posicaoAtual[0] === posicaoFinal[0] &&
-        posicaoAtual[1] === posicaoFinal[1]
-      ) {
-        return caminho; // Retornar o caminho encontrado
-      }
-
-      // Marcar a posição atual como visitada
-      visitados.add(`${posicaoAtual[0]},${posicaoAtual[1]}`);
-
-      // Explorar os movimentos possíveis do cavalo
-      for (const movimento of movimentosCavalo) {
-        const novaLinha = posicaoAtual[0] + movimento[0];
-        const novaColuna = posicaoAtual[1] + movimento[1];
-
-        // Verificar se a nova posição é válida e não foi visitada
-        if (
-          posicaoValida(novaLinha, novaColuna) &&
-          !visitados.has(`${novaLinha},${novaColuna}`)
-        ) {
-          fila.push([...caminho, [novaLinha, novaColuna]]); // Adicionar o novo caminho à fila
-        }
+    let maxIndex = 0;
+    for (let i = 1; i < arr.length; i++) {
+      if (arr[i] > arr[maxIndex]) {
+        maxIndex = i;
       }
     }
 
-    return null; // Retornar null se nenhum caminho for encontrado
+    return maxIndex;
   }
 
-  // Exemplo de uso
-  const posicaoInicial = [0, 0]; // Posição inicial do cavalo (linha, coluna)
-  const posicaoFinal = [0, 1]; // Posição final desejada
+  function findMinIndex(arr) {
+    if (arr.length === 0) {
+      return -1; // Retorna -1 para array vazia
+    }
 
-  const caminho = caminhosCavalo(posicaoInicial, posicaoFinal);
+    let minIndex = 0;
+    for (let i = 1; i < arr.length; i++) {
+      if (arr[i] < arr[minIndex]) {
+        minIndex = i;
+      }
+    }
 
-  if (caminho) {
-    console.log(
-      "Caminho encontrado:",
-      caminho.find((c) => compareArrays(c, [0, 0])),
+    return minIndex;
+  }
+
+  function selecionaInicia(y, x) {
+    caminho = [...caminho, [y, x]];
+
+    setTimeout(() => {
+      calculaCaminho();
+    }, 500);
+  }
+
+  function continuar() {
+    loop = setTimeout(() => {
+      calculaCaminho();
+    }, 1000);
+  }
+
+  function pausar() {
+    clearInterval(loop);
+    loop = false;
+  }
+
+  function calculaCaminho() {
+    if (
+      tabuleiro.every((largura) => largura.every((altura) => altura === false))
+    ) {
+      clearInterval(loop);
+      loop = false;
+      return;
+    }
+
+    const posicaoAtual = caminho[caminho.length - 1];
+    tabuleiro[posicaoAtual[0]][posicaoAtual[1]] = false;
+
+    let posicoesPossiveis = caminhosPossiveis(posicaoAtual);
+    let tamanhoPossibilidadesDasPosicoesPossiveis = posicoesPossiveis.map(
+      (posicao) => caminhosPossiveis(posicao).length,
     );
-  } else {
-    console.log("Não foi possível encontrar um caminho válido.");
+    let indexDaMelhorPosicao = findMinIndex(
+      tamanhoPossibilidadesDasPosicoesPossiveis,
+    );
+    let melhorPosicao = posicoesPossiveis[indexDaMelhorPosicao];
+    caminho = [...caminho, melhorPosicao];
+
+    document.querySelector('.sim').scrollIntoView();
+
+    console.clear();
+    console.table(tabuleiro);
+    console.log("Posição atual:", posicaoAtual);
+    console.log(`Posicoes possíveis:`, posicoesPossiveis);
+    console.log(
+      `Possibilidades das novas posições:`,
+      tamanhoPossibilidadesDasPosicoesPossiveis,
+    );
+    console.log(`Posição com menos possibilidades:`, indexDaMelhorPosicao);
+    console.log(`Posição melhor:`, melhorPosicao);
+
+    loop = setTimeout(() => {
+      calculaCaminho();
+    }, 0.00001);
   }
+
+  function caminhosPossiveis(posicaoAtual) {
+    let posicoes = [];
+    for (const movimento of movimentosCavalo) {
+      const novaLinha = posicaoAtual[0] + movimento[0];
+      const novaColuna = posicaoAtual[1] + movimento[1];
+
+      // Verificar se a nova posição é válida e não foi visitada
+      if (
+        posicaoValida(novaLinha, novaColuna) &&
+        tabuleiro[novaLinha][novaColuna] === true
+      ) {
+        posicoes = [...posicoes, [novaLinha, novaColuna]];
+      }
+    }
+    return posicoes;
+  }
+
 </script>
 
-<main class="flex flex-col items-center justify-center h-screen">
+<main class="flex flex-col items-center justify-center min-w-screen max-w-screen min-h-screen max-h-screen overflow-scroll">
   <h1 class="mb-4">Problema problemático do xadrez</h1>
   {#if tabuleiro.length === 0}
     <div class="flex flex-col">
@@ -118,28 +171,44 @@
     </div>
   {:else}
     <div class="flex flex-col border border-pink-500">
-      {#each tabuleiro as largura, y}
+      {#each tabuleiro as altura, y}
         <div class="flex flex-row">
-          {#each largura as _, x}
-            <div
-              class="w-10 h-10 border relative border border-blue-200"
-              class:bg-green-500={caminho.find((c) => compareArrays(c, [x, y]))}
+          {#each altura as largura, x}
+            {@const visitado = caminho.find((c) => c[0] === y && c[1] === x)}
+            {@const visitadoIndex = caminho.findIndex(
+              (c) => c[0] === y && c[1] === x,
+            )}
+            <button
+              class="w-10 h-10 border relative border border-blue-200 {caminho.length === 0 ? 'hover:bg-yellow-200' : ''}"
+              class:bg-green-200={visitado}
+              class:sim={caminho.length > 0 && caminho?.[caminho.length - 1]?.[0] === y && caminho?.[caminho.length - 1]?.[1] === x}
+              class:nao={caminho.length > 0 && caminho?.[caminho.length - 1]?.[0] !== y && caminho?.[caminho.length - 1]?.[1] !== x}
+              on:click={() => caminho.length === 0 ? selecionaInicia(y ,x) : null}
             >
               <span class="font-mono text-xs absolute top-0 left-0">
                 {y}-{x}
               </span>
-              {#if cavalo[y][x] !== null}
+              {#if caminho.length > 0 && caminho?.[caminho.length - 1]?.[0] === y && caminho?.[caminho.length - 1]?.[1] === x}
                 <img
                   src={cavaloSvg}
                   alt=""
-                  class="absolute bottom-1 right-2 h-6 w-6"
+                  class="absolute bottom-2 right-3 h-4 w-4"
                 />
               {/if}
-            </div>
+              <span class="font-mono text-xs absolute bottom-0 right-0"
+                >{visitadoIndex !== -1 ? `${visitadoIndex + 1}º` : ""}</span
+              >
+            </button>
           {/each}
         </div>
       {/each}
     </div>
+    <button
+      class="bg-blue-300 rounded-md shadow-sm py-1 px-4 w-fit mt-4"
+      on:click={() => (loop ? pausar() : continuar())}
+    >
+      {loop ? "Pausar" : "Continuar"}
+    </button>
     <button
       class="bg-blue-300 rounded-md shadow-sm py-1 px-4 w-fit mt-4"
       on:click={limparTabuleiro}
