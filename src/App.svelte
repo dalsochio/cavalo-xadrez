@@ -128,7 +128,7 @@
 
     loop = setTimeout(() => {
       calculaCaminho();
-    }, 0.00001);
+    }, 1000);
   }
 
   function caminhosPossiveis(posicaoAtual) {
