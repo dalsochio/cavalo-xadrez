@@ -83,7 +83,7 @@
   function continuar() {
     loop = setTimeout(() => {
       calculaCaminho();
-    }, 1000);
+    }, 500);
   }
 
   function pausar() {
@@ -128,7 +128,7 @@
 
     loop = setTimeout(() => {
       calculaCaminho();
-    }, 1000);
+    }, 250);
   }
 
   function caminhosPossiveis(posicaoAtual) {
