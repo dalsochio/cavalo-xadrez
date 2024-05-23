@@ -1,47 +1,29 @@
-# Svelte + Vite
+**LINK PUBLICADO**: [https://cavalo-no-xadrez.web.app/](https://cavalo-no-xadrez.web.app/)
 
-This template should help get you started developing with Svelte in Vite.
 
-## Recommended IDE Setup
+## Introdução do problema:
+O problema do "Cavalo de Xadrez" é um famoso desafio envolvendo a movimentação do cavalo no tabuleiro de xadrez. O objetivo é encontrar um caminho que visite todas as casas do tabuleiro exatamente uma vez, começando de uma casa inicial escolhida pelo usuário.
+Esse problema é um exemplo clássico de problemas de percurso, amplamente estudado na teoria dos grafos e na computação. Apesar de parecer simples, encontrar uma solução eficiente para tabuleiros maiores pode ser um desafio computacional significativo.
+A solução proposta neste código utiliza uma heurística gulosa conhecida como a "Regra de Warnsdorff" ou "Algoritmo das Casas Mais Próximas". Essa abordagem foi proposta por H. C. Warnsdorff, um mestre de xadrez alemão do século XIX, e é uma das heurísticas mais populares e eficientes para resolver o problema do Cavalo de Xadrez.
+A Regra de Warnsdorff segue o princípio de que, em cada movimento, o cavalo deve ir para a casa que tenha o menor número de casas adjacentes acessíveis a partir dela. Essa abordagem busca minimizar as possibilidades de ficar "preso" em um beco sem saída, maximizando as chances de encontrar uma solução completa para o problema.
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+## Heurística utilizada:
+A heurística utilizada nesta solução é baseada no algoritmo de Warnsdorff, também conhecido como a regra das casas mais próximas. Essa abordagem segue o princípio de que, em cada movimento, o cavalo deve ir para a casa que tenha o menor número de casas adjacentes acessíveis a partir dela.
+O algoritmo funciona da seguinte maneira:
 
-## Need an official Svelte framework?
+- Inicia-se a partir da casa escolhida pelo usuário.
+- Em cada passo, calcula-se todas as casas acessíveis a partir da posição atual do cavalo.
+- Para cada casa acessível, conta-se quantas casas vazias estão adjacentes a ela.
+- O próximo movimento é feito para a casa que tiver o menor número de casas adjacentes vazias.
+- Caso haja empate, escolhe-se uma das casas empatadas aleatoriamente.
+- O processo é repetido até que todas as casas sejam visitadas ou até que não haja mais movimentos possíveis.
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+Essa heurística é eficiente porque tende a evitar que o cavalo fique "preso" em situações sem saída, maximizando as chances de encontrar uma solução completa para o problema.
 
-## Technical considerations
-
-**Why use this over SvelteKit?**
-
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
-
-This template contains as little as possible to get started with Vite + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
-
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `checkJs` in the JS template?**
-
-It is likely that most cases of changing variable types in runtime are likely to be accidental, rather than deliberate. This provides advanced typechecking out of the box. Should you like to take advantage of the dynamically-typed nature of JavaScript, it is trivial to change the configuration.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/sveltejs/svelte-hmr/tree/master/packages/svelte-hmr#preservation-of-local-state).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```js
-// store.js
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
-```
+## Explicação da implementação no código:
+O código implementa a heurística descrita anteriormente utilizando a linguagem de programação JavaScript e o framework Svelte para a interface de usuário.
+Inicialmente, o usuário informa o tamanho do tabuleiro desejado, e o programa gera uma matriz bidimensional representando o tabuleiro. Em seguida, o usuário escolhe a casa inicial clicando em uma das casas vazias.
+A função calculaCaminho é responsável por implementar a heurística. Ela verifica se todas as casas foram visitadas e, caso contrário, calcula as posições possíveis a partir da posição atual do cavalo usando a função caminhosPossiveis. Em seguida, para cada posição possível, conta-se quantas casas vazias estão adjacentes a ela.
+A função findMinIndex é usada para encontrar o índice da posição com o menor número de casas adjacentes vazias. Essa posição é selecionada como o próximo movimento do cavalo, e o processo é repetido até que todas as casas sejam visitadas ou não haja mais movimentos possíveis.
+O código também inclui recursos adicionais, como botões para pausar, continuar e limpar o tabuleiro, além de uma visualização animada do caminho percorrido pelo cavalo.
+Com essa implementação, o programa é capaz de resolver eficientemente o problema do "Cavalo de Xadrez" para tabuleiros de diferentes tamanhos, utilizando a heurística gulosa baseada no algoritmo de Warnsdorff.
